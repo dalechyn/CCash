@@ -77,9 +77,10 @@ public class InvestItem
 
             JSONArray arr = new JSONArray();
 
+
             for(Tuple<String, String> t : Debts)
             {
-                arr.put(t);
+                arr.put(t.x + ":" + t.y);
             }
 
             object.put(InvestItemKeys.InvestDebtorsKey, arr);

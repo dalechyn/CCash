@@ -1,5 +1,6 @@
 package com.example.vladislav.ccash;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.vladislav.ccash.DebtCardView.InvestCardAdapter;
 import com.example.vladislav.ccash.Frontend.InvestItem;
@@ -20,9 +22,9 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
 {
-    private final static int RESPONSE_CODE = 0;
+    private final static int REQUESTCODE_SCANQR = 1;
 
-    Button btscanQR, btncreateNew, btncheckTotal;
+    Button btnmanageDebtors, btncanQR, btncreateNew, btncheckTotal;
 
     private RecyclerView recyclerView;
     private InvestCardAdapter mAdapter;
@@ -32,9 +34,10 @@ public class MainActivity extends AppCompatActivity
 
     private void initUI()
     {
-        btscanQR = (Button) findViewById(R.id.buttonScanQR);
+        btncanQR = (Button) findViewById(R.id.buttonScanQR);
         btncreateNew = (Button) findViewById(R.id.buttonNewItem);
         btncheckTotal = (Button) findViewById(R.id.buttonCheckTotal);
+        btnmanageDebtors = (Button) findViewById(R.id.buttonManageDebtors);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerViewMain);
     }
 
@@ -84,7 +87,52 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        btncanQR.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+               Intent intentScanQR = new Intent(MainActivity.this, ScanQRActivity.class);
+               startActivityForResult(intentScanQR, REQUESTCODE_SCANQR);
+            }
+        });
+
+        btnmanageDebtors.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent newIntent = new Intent(MainActivity.this, ManageDebtorsActivity.class);
+                startActivity(newIntent);
+            }
+        });
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUESTCODE_SCANQR)
+        {
+            if(resultCode == Activity.RESULT_OK)
+            {
+                String resultJSON = data.getStringExtra(QRTranslateConfig.QRScanResult);
+                Toast.makeText(this, "Everything is fine",
+                               Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, resultJSON,
+                               Toast.LENGTH_SHORT).show();
+            }
+            else
+                if (resultCode == Activity.RESULT_CANCELED)
+                {
+                    Toast.makeText(this, "Something went wrong",
+                                   Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
