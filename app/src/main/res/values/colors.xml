@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="topBarColor">#ff8800</color>
+    <color name="totalSumColor">#d32f2f</color>
+    <color name="cardViewBackColor">#616161</color>
+    <color name="defaultTextColor">#ffffff</color>
+    <color name="buttonCheckMore">#9e9e9e</color>
+    <color name="buttonShareQR">#aed581</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+</resources>
