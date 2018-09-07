@@ -7,5 +7,8 @@ public interface QRTranslateConfig
     String QRAdd = "addItem";
     String QRInvestment = "investment";
     String QRScanResult = "qrresultscan";
-    String QRAddUser = "addUser";
+    String QRUserName = "username";
+    String QRuid = "qruid";
+    String QRAddContact = "addContact";
+    String QRContact = "contactitem";
 }

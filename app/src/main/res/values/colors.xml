@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#5d608217</color>
     <color name="colorAccent">#FF4081</color>
     <color name="topBarColor">#66bb6a</color>
-    <color name="totalSumColor">#1e88e5</color>
+    <color name="totalSumColor">#e91e63</color>
     <color name="cardViewBackColor">#212121</color>
     <color name="defaultTextColor">#ffffff</color>
     <color name="buttonCheckMore">#b71c1c</color>

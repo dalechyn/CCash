@@ -1,7 +1,9 @@
 package com.example.vladislav.ccash;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +16,7 @@ import com.example.vladislav.ccash.DebtCardView.InvestCardAdapter;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.Frontend.InvestItemKeys;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
+import com.example.vladislav.ccash.backend.SharedPrefKeys;
 import com.example.vladislav.ccash.backend.Tuple;
 
 import org.json.JSONArray;
@@ -21,6 +24,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -138,7 +144,13 @@ public class MainActivity extends AppCompatActivity
                     investItems.add(newInvestItem);
                     mAdapter.notifyItemInserted(investItems.size());
                     break;
+                case QRTranslateConfig.QRAddContact:
+                    JSONObject contactJSON = jsonObject.getJSONObject(QRTranslateConfig.QRContact);
 
+                    Map<String, String> map = loadMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS);
+                    map.put(contactJSON.getString(QRTranslateConfig.QRUserName), contactJSON.getString(QRTranslateConfig.QRuid));
+                    saveMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, map);
+                    break;
             }
 
         }
@@ -146,6 +158,38 @@ public class MainActivity extends AppCompatActivity
         {
             e.printStackTrace();
         }
+    }
+
+    private void saveMap(String keyPrefs, String keyItem, Map<String,String> inputMap){
+        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
+        if (pSharedPref != null){
+            JSONObject jsonObject = new JSONObject(inputMap);
+            String jsonString = jsonObject.toString();
+            SharedPreferences.Editor editor = pSharedPref.edit();
+            editor.remove(keyItem).commit();
+            editor.putString(keyItem, jsonString);
+            editor.commit();
+        }
+    }
+
+    private Map<String,String> loadMap(String keyPrefs, String keyItem){
+        Map<String,String> outputMap = new HashMap<String,String>();
+        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
+        try{
+            if (pSharedPref != null){
+                String jsonString = pSharedPref.getString(keyItem, (new JSONObject()).toString());
+                JSONObject jsonObject = new JSONObject(jsonString);
+                Iterator<String> keysItr = jsonObject.keys();
+                while(keysItr.hasNext()) {
+                    String key = keysItr.next();
+                    String value = (String) jsonObject.get(key);
+                    outputMap.put(key, value);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return outputMap;
     }
 
     @Override
