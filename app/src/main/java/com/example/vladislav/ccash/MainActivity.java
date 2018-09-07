@@ -12,9 +12,11 @@ import android.widget.Toast;
 
 import com.example.vladislav.ccash.DebtCardView.InvestCardAdapter;
 import com.example.vladislav.ccash.Frontend.InvestItem;
+import com.example.vladislav.ccash.Frontend.InvestItemKeys;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
 import com.example.vladislav.ccash.backend.Tuple;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -73,7 +75,8 @@ public class MainActivity extends AppCompatActivity
                 JSONObject finalQR = new JSONObject();
                 try
                 {
-                    finalQR.put(QRTranslateConfig.QRAdd, investItems.get(position).toJSON());
+                    finalQR.put(QRTranslateConfig.QRAction, QRTranslateConfig.QRAdd);
+                    finalQR.put(QRTranslateConfig.QRInvestment, investItems.get(position).toJSON());
                 }
                 catch (JSONException e)
                 {
@@ -109,6 +112,42 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private void QRHandler(String encodedJSON)
+    {
+        try
+        {
+            JSONObject jsonObject = new JSONObject(encodedJSON);
+            switch(jsonObject.getString(QRTranslateConfig.QRAction))
+            {
+                case QRTranslateConfig.QRAdd:
+
+                    JSONObject investJSON = jsonObject.getJSONObject(QRTranslateConfig.QRInvestment);
+
+                    ArrayList<Tuple<String, String>> debtors = new ArrayList<>();
+                    JSONArray jsonArray = investJSON.getJSONArray(InvestItemKeys.InvestDebtorsKey);
+                    if (jsonArray != null) {
+                        for (int i=0;i<jsonArray.length();i++){
+                            String[] parts = jsonArray.getString(i).split(":");
+                            debtors.add(new Tuple(parts[0], parts[1]));
+                        }
+                    }
+
+                    InvestItem newInvestItem = new InvestItem(investJSON.getString(InvestItemKeys.InvestNameKey), investJSON.getString(InvestItemKeys.InvestDescriptionKey),
+                                                              investJSON.getString(InvestItemKeys.InvestSumKey), debtors);
+
+                    investItems.add(newInvestItem);
+                    mAdapter.notifyItemInserted(investItems.size());
+                    break;
+
+            }
+
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -121,8 +160,8 @@ public class MainActivity extends AppCompatActivity
                 String resultJSON = data.getStringExtra(QRTranslateConfig.QRScanResult);
                 Toast.makeText(this, "Everything is fine",
                                Toast.LENGTH_SHORT).show();
-                Toast.makeText(this, resultJSON,
-                               Toast.LENGTH_SHORT).show();
+
+                QRHandler(resultJSON);
             }
             else
                 if (resultCode == Activity.RESULT_CANCELED)

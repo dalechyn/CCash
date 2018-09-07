@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:background="@color/topBarColor"
 
-        android:text="Manage Debtors"
+        android:text="Manage contacts"
         app:layout_constraintEnd_toStartOf="@+id/buttonScanQR"
         app:layout_constraintStart_toEndOf="@+id/buttonNewItem" />
 
