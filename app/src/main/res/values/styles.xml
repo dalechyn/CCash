@@ -19,4 +19,13 @@
         <item name="android:shadowRadius">3</item>
     </style>
 
+    <style name="addinvest">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="MyDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@drawable/investadd_drawable</item>
+    </style>
+
 </resources>

@@ -18,8 +18,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.example.vladislav.ccash.backend.MapFuncs;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
 import com.example.vladislav.ccash.backend.SharedPrefKeys;
+import com.example.vladislav.ccash.backend.Tuple;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +34,7 @@ import java.util.Map;
 public class ManageDebtorsActivity extends AppCompatActivity
 {
     Button btnShareName;
-    HashMap<String, String> debtorsMap;
+    HashMap<String, Tuple<String, Integer>> debtorsMap;
     ArrayList<String> debtors;
     SharedPreferences sharedPreferences;
 
@@ -41,7 +43,7 @@ public class ManageDebtorsActivity extends AppCompatActivity
     @Override
     public void onBackPressed()
     {
-        saveMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, debtorsMap);
+        MapFuncs.saveMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, debtorsMap);
         super.onBackPressed();
     }
 
@@ -57,8 +59,12 @@ public class ManageDebtorsActivity extends AppCompatActivity
 
     private void initHashmap()
     {
-        debtorsMap = new HashMap<>(loadMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS));
-        debtors = new ArrayList<>(debtorsMap.values());
+        debtorsMap = new HashMap<>(MapFuncs.loadMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS));
+        debtors = new ArrayList<>();
+
+        //Init debtors
+
+        debtors = new ArrayList<>(debtorsMap.keySet());
     }
 
     private void initView()
@@ -155,9 +161,9 @@ public class ManageDebtorsActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                                String savedUId = debtorsMap.get(debtors.get(position));
+                                Tuple savedUserInfo = debtorsMap.get(debtors.get(position));
                                 debtorsMap.remove(debtors.get(position));
-                                debtorsMap.put(renameName.getText().toString(), savedUId);
+                                debtorsMap.put(renameName.getText().toString(), savedUserInfo);
                                 debtors.set(position, renameName.getText().toString());
                                 dialogInterface.dismiss();
                             }
@@ -182,36 +188,5 @@ public class ManageDebtorsActivity extends AppCompatActivity
         });
     }
 
-    private void saveMap(String keyPrefs, String keyItem, Map<String,String> inputMap){
-        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
-        if (pSharedPref != null){
-            JSONObject jsonObject = new JSONObject(inputMap);
-            String jsonString = jsonObject.toString();
-            SharedPreferences.Editor editor = pSharedPref.edit();
-            editor.remove(keyItem).commit();
-            editor.putString(keyItem, jsonString);
-            editor.commit();
-        }
-    }
-
-    private Map<String,String> loadMap(String keyPrefs, String keyItem){
-        Map<String,String> outputMap = new HashMap<String,String>();
-        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
-        try{
-            if (pSharedPref != null){
-                String jsonString = pSharedPref.getString(keyItem, (new JSONObject()).toString());
-                JSONObject jsonObject = new JSONObject(jsonString);
-                Iterator<String> keysItr = jsonObject.keys();
-                while(keysItr.hasNext()) {
-                    String key = keysItr.next();
-                    String value = (String) jsonObject.get(key);
-                    outputMap.put(key, value);
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return outputMap;
-    }
 
 }

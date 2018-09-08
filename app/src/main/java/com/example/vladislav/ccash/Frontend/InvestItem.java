@@ -13,7 +13,7 @@ public class InvestItem
     String InvestName;
     String InvestDescription;
     String InvestSum;
-    ArrayList<Tuple<String, String>> Debts;
+    ArrayList<Tuple<String, Integer>> Debts;
 
     public String getInvestName()
     {
@@ -45,12 +45,12 @@ public class InvestItem
         InvestSum = investSum;
     }
 
-    public ArrayList<Tuple<String, String>> getDebts()
+    public ArrayList<Tuple<String, Integer>> getDebts()
     {
         return Debts;
     }
 
-    public void setDebts(ArrayList<Tuple<String, String>> debts)
+    public void setDebts(ArrayList<Tuple<String, Integer>> debts)
     {
         Debts = debts;
     }
@@ -59,7 +59,7 @@ public class InvestItem
     {
     }
 
-    public InvestItem(String investName, String investDescription, String investSum, ArrayList<Tuple<String, String>> debts){
+    public InvestItem(String investName, String investDescription, String investSum, ArrayList<Tuple<String, Integer>> debts){
         setDebts(debts);
         setInvestDescription(investDescription);
         setInvestName(investName);
@@ -75,12 +75,11 @@ public class InvestItem
             object.put(InvestItemKeys.InvestDescriptionKey, InvestDescription);
             object.put(InvestItemKeys.InvestSumKey, InvestSum);
 
-            JSONArray arr = new JSONArray();
+            JSONObject arr = new JSONObject();
 
-
-            for(Tuple<String, String> t : Debts)
+            for(Tuple<String, Integer> t : Debts)
             {
-                arr.put(t.x + ":" + t.y);
+                arr.put(t.x ,t.y);
             }
 
             object.put(InvestItemKeys.InvestDebtorsKey, arr);

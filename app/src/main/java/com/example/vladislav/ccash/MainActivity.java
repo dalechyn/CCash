@@ -1,20 +1,32 @@
 package com.example.vladislav.ccash;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vladislav.ccash.DebtCardView.InvestCardAdapter;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.Frontend.InvestItemKeys;
+import com.example.vladislav.ccash.backend.MapFuncs;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
 import com.example.vladislav.ccash.backend.SharedPrefKeys;
 import com.example.vladislav.ccash.backend.Tuple;
@@ -47,13 +59,122 @@ public class MainActivity extends AppCompatActivity
         btncheckTotal = (Button) findViewById(R.id.buttonCheckTotal);
         btnmanageDebtors = (Button) findViewById(R.id.buttonManageDebtors);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerViewMain);
+
+        btncreateNew.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(getApplicationContext(), R.style.MyDialogTheme);
+                View mView = getLayoutInflater().inflate(R.layout.invest_add, null);
+
+                final EditText iName = (EditText) mView.findViewById(R.id.editTextName);
+                final EditText iDescription = (EditText) mView.findViewById(R.id.editTextDescription);
+                final EditText iSum = (EditText) mView.findViewById(R.id.editTextSum);
+
+                final ImageView imageView = (ImageView) mView.findViewById(R.id.imageViewAddDebtor);
+
+                final LinearLayout linearLayout = (LinearLayout) mView.findViewById(R.id.linearlayoutDebtors);
+
+                final ArrayList<EditText> editTextRefferences = new ArrayList<EditText>();
+
+                imageView.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        Context context = getApplicationContext();
+
+                        final LinearLayout newLayout = new LinearLayout(context);
+
+                        newLayout.setOrientation(LinearLayout.HORIZONTAL);
+                        newLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                        final Spinner newSpinner = new Spinner(context);
+
+                        final ArrayList<String> addable = new ArrayList<>();
+
+                        addable.addAll(MapFuncs.loadMap(getApplicationContext(),
+                                                        SharedPrefKeys.MY_PREF_KEY,
+                                                        SharedPrefKeys.THIS_CONTACTS).keySet());
+
+                        newSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item,
+                                                                       addable));
+                        newSpinner.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        TextView tv1 = new TextView(getApplicationContext());
+
+                        tv1.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                        tv1.setTextColor(getResources().getColor(R.color.white));
+                        tv1.setText("N:");
+
+                        TextView tv2 = new TextView(getApplicationContext());
+
+                        tv2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                       // tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                        tv2.setTextColor(getResources().getColor(R.color.white));
+                        tv2.setText("S:");
+
+                        final EditText editText2 = new EditText(getApplicationContext());
+                        editText2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        editText2.setTextColor(getResources().getColor(R.color.white));
+
+                        editTextRefferences.add(editText2);
+
+                        ImageView imageViewDel = new ImageView(context);
+                        imageViewDel.setImageResource(android.R.drawable.ic_input_delete);
+
+                        imageViewDel.setOnClickListener(new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View view)
+                            {
+                                linearLayout.removeView(newLayout);
+                                editTextRefferences.remove(editText2);
+                            }
+                        });
+
+                        newLayout.addView(tv1);
+                        newLayout.addView(newSpinner);
+                        newLayout.addView(tv2);
+                        newLayout.addView(editText2);
+                        newLayout.addView(imageViewDel);
+
+                        linearLayout.addView(newLayout);
+
+                    }
+                });
+
+
+            }
+        });
+
+        btncanQR.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intentScanQR = new Intent(MainActivity.this, ScanQRActivity.class);
+                startActivityForResult(intentScanQR, REQUESTCODE_SCANQR);
+            }
+        });
+
+        btnmanageDebtors.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent newIntent = new Intent(MainActivity.this, ManageDebtorsActivity.class);
+                startActivity(newIntent);
+            }
+        });
     }
 
     private void InTest()
     {
-        ArrayList<Tuple<String, String>> Debtors = new ArrayList<Tuple<String, String>>();
-        Debtors.add(new Tuple<String, String>("Max", "200$"));
-        Debtors.add(new Tuple<String, String>("Misha", "400$"));
+        ArrayList<Tuple<String, Integer>> Debtors = new ArrayList<Tuple<String, Integer>>();
+        Debtors.add(new Tuple<String, Integer>("Max", 200));
+        Debtors.add(new Tuple<String, Integer>("Misha", 400));
         investItems.add(new InvestItem("Router", "We bought a real router on this money", "4000$", Debtors)
         );
         mAdapter.notifyItemInserted(0);
@@ -96,25 +217,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        btncanQR.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-               Intent intentScanQR = new Intent(MainActivity.this, ScanQRActivity.class);
-               startActivityForResult(intentScanQR, REQUESTCODE_SCANQR);
-            }
-        });
 
-        btnmanageDebtors.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                Intent newIntent = new Intent(MainActivity.this, ManageDebtorsActivity.class);
-                startActivity(newIntent);
-            }
-        });
 
     }
 
@@ -129,12 +232,13 @@ public class MainActivity extends AppCompatActivity
 
                     JSONObject investJSON = jsonObject.getJSONObject(QRTranslateConfig.QRInvestment);
 
-                    ArrayList<Tuple<String, String>> debtors = new ArrayList<>();
-                    JSONArray jsonArray = investJSON.getJSONArray(InvestItemKeys.InvestDebtorsKey);
-                    if (jsonArray != null) {
-                        for (int i=0;i<jsonArray.length();i++){
-                            String[] parts = jsonArray.getString(i).split(":");
-                            debtors.add(new Tuple(parts[0], parts[1]));
+                    ArrayList<Tuple<String, Integer>> debtors = new ArrayList<>();
+                    JSONObject jsonDebtors = investJSON.getJSONObject(InvestItemKeys.InvestDebtorsKey);
+                    if (jsonDebtors != null) {
+                        Iterator<String> keys = jsonDebtors.keys();
+                        while (keys.hasNext()){
+                            String key = keys.next();
+                            debtors.add(new Tuple<>(key, (Integer) jsonDebtors.get(key)));
                         }
                     }
 
@@ -147,9 +251,10 @@ public class MainActivity extends AppCompatActivity
                 case QRTranslateConfig.QRAddContact:
                     JSONObject contactJSON = jsonObject.getJSONObject(QRTranslateConfig.QRContact);
 
-                    Map<String, String> map = loadMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS);
-                    map.put(contactJSON.getString(QRTranslateConfig.QRUserName), contactJSON.getString(QRTranslateConfig.QRuid));
-                    saveMap(SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, map);
+                    Map<String, Tuple<String, Integer>> map = MapFuncs.loadMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS);
+                    map.put(contactJSON.getString(QRTranslateConfig.QRUserName),
+                            new Tuple<>(contactJSON.getString(QRTranslateConfig.QRuid), 0));
+                    MapFuncs.saveMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, map);
                     break;
             }
 
@@ -160,37 +265,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void saveMap(String keyPrefs, String keyItem, Map<String,String> inputMap){
-        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
-        if (pSharedPref != null){
-            JSONObject jsonObject = new JSONObject(inputMap);
-            String jsonString = jsonObject.toString();
-            SharedPreferences.Editor editor = pSharedPref.edit();
-            editor.remove(keyItem).commit();
-            editor.putString(keyItem, jsonString);
-            editor.commit();
-        }
-    }
 
-    private Map<String,String> loadMap(String keyPrefs, String keyItem){
-        Map<String,String> outputMap = new HashMap<String,String>();
-        SharedPreferences pSharedPref = getApplicationContext().getSharedPreferences(keyPrefs, Context.MODE_PRIVATE);
-        try{
-            if (pSharedPref != null){
-                String jsonString = pSharedPref.getString(keyItem, (new JSONObject()).toString());
-                JSONObject jsonObject = new JSONObject(jsonString);
-                Iterator<String> keysItr = jsonObject.keys();
-                while(keysItr.hasNext()) {
-                    String key = keysItr.next();
-                    String value = (String) jsonObject.get(key);
-                    outputMap.put(key, value);
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return outputMap;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
