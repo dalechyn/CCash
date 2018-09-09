@@ -1,100 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:background="@drawable/investadd_drawable"
-    app:columnCount="3">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/investName"
-        style="@style/addinvest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Name:"
-        app:layout_column="0"
-        app:layout_row="0" />
-
-    <EditText
-        android:id="@+id/editTextName"
-        style="@style/addinvest"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_column="1"
-        app:layout_columnSpan="2"
-        app:layout_columnWeight="1"
-        app:layout_row="0" />
-
-    <TextView
-        android:id="@+id/investDescription"
-        style="@style/addinvest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Description:"
-        app:layout_column="0"
-        app:layout_row="1" />
-
-    <EditText
-        android:id="@+id/editTextDescription"
-        style="@style/addinvest"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_column="1"
-        app:layout_columnSpan="2"
-        app:layout_columnWeight="1"
-        app:layout_row="1" />
-
-    <TextView
-        android:id="@+id/investSum"
-        style="@style/addinvest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Invest sum:"
-        app:layout_column="0"
-        app:layout_row="2" />
-
-    <EditText
-        android:id="@+id/editTextSum"
-        style="@style/addinvest"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        app:layout_column="1"
-        app:layout_columnSpan="2"
-        app:layout_columnWeight="1"
-        app:layout_row="2" />
-
-    <TextView
-        android:id="@+id/investDebtors"
-        style="@style/addinvest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Debtors:"
-        app:layout_column="0"
-        app:layout_row="3" />
-
-    <LinearLayout
-        android:id="@+id/linearlayoutDebtors"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_column="1"
-        app:layout_columnWeight="1"
-        app:layout_row="3">
+    <android.support.v7.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
 
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/investName"
+            style="@style/addinvest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name:"
+            app:layout_column="0"
+            app:layout_row="0" />
 
-    <ImageView
-        android:id="@+id/imageViewAddDebtor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_column="2"
-        app:layout_row="3"
-         />
-</android.support.v7.widget.GridLayout>
+        <EditText
+            android:id="@+id/editTextName"
+            style="@style/addinvest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            app:layout_column="1"
+            app:layout_columnWeight="1"
+            app:layout_row="0" />
+
+        <TextView
+            android:id="@+id/investDescription"
+            style="@style/addinvest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description:"
+            app:layout_column="0"
+            app:layout_row="1" />
+
+        <EditText
+            android:id="@+id/editTextDescription"
+            style="@style/addinvest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            app:layout_column="1"
+            app:layout_columnWeight="1"
+            app:layout_row="1" />
+
+        <TextView
+            android:id="@+id/investSum"
+            style="@style/addinvest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invest sum:"
+            app:layout_column="0"
+            app:layout_row="2" />
+
+        <EditText
+            android:id="@+id/editTextSum"
+            style="@style/addinvest"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="number"
+            app:layout_column="1"
+            app:layout_columnWeight="1"
+            app:layout_row="2" />
+
+        <TextView
+            android:id="@+id/investDebtors"
+            style="@style/addinvest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Debtors:"
+            app:layout_column="0"
+            app:layout_row="3" />
+
+        <LinearLayout
+            android:id="@+id/linearlayoutDebtors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_column="0"
+            app:layout_columnSpan="3"
+            app:layout_row="4">
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageViewAddDebtor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_input_add"
+            app:layout_column="1"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="1"
+            app:layout_row="3" />
+    </android.support.v7.widget.GridLayout>
+</ScrollView>

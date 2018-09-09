@@ -3,13 +3,17 @@ package com.example.vladislav.ccash;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(getApplicationContext(), R.style.MyDialogTheme);
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this, R.style.MyDialogTheme);
                 View mView = getLayoutInflater().inflate(R.layout.invest_add, null);
 
                 final EditText iName = (EditText) mView.findViewById(R.id.editTextName);
@@ -77,13 +81,21 @@ public class MainActivity extends AppCompatActivity
                 final LinearLayout linearLayout = (LinearLayout) mView.findViewById(R.id.linearlayoutDebtors);
 
                 final ArrayList<EditText> editTextRefferences = new ArrayList<EditText>();
+                final ArrayList<Spinner> spinnerRefferences = new ArrayList<Spinner>();
+
 
                 imageView.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View view)
                     {
-                        Context context = getApplicationContext();
+                        if(MapFuncs.loadMap(getApplicationContext(), SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS).isEmpty())
+                        {
+                            Toast.makeText(getApplicationContext(), "You've got no debtors to add", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        Context context = MainActivity.this;
 
                         final LinearLayout newLayout = new LinearLayout(context);
 
@@ -101,23 +113,28 @@ public class MainActivity extends AppCompatActivity
                         newSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item,
                                                                        addable));
                         newSpinner.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                        TextView tv1 = new TextView(getApplicationContext());
+
+                        spinnerRefferences.add(newSpinner);
+
+                        TextView tv1 = new TextView(context);
 
                         tv1.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                         tv1.setTextColor(getResources().getColor(R.color.white));
                         tv1.setText("N:");
 
-                        TextView tv2 = new TextView(getApplicationContext());
+                        TextView tv2 = new TextView(context);
 
                         tv2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                       // tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                        tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                         tv2.setTextColor(getResources().getColor(R.color.white));
                         tv2.setText("S:");
 
-                        final EditText editText2 = new EditText(getApplicationContext());
-                        editText2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        final EditText editText2 = new EditText(context);
+                        editText2.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
                         editText2.setTextColor(getResources().getColor(R.color.white));
+
+                        editText2.setInputType(InputType.TYPE_CLASS_NUMBER);
 
                         editTextRefferences.add(editText2);
 
@@ -145,7 +162,65 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
+                mBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
 
+                        boolean editTextRefferencesBad = false;
+                        boolean noDebtors = false;
+
+                        if(!editTextRefferences.isEmpty())
+                        {
+                            for (EditText editText : editTextRefferences)
+                            {
+                                if (editText.getText().toString().isEmpty())
+                                    editTextRefferencesBad = true;
+                            }
+                        }
+                        else noDebtors = true;
+
+
+                        if(iName.getText().toString().isEmpty() || iDescription.getText().toString().isEmpty()
+                                || iSum.getText().toString().isEmpty() || editTextRefferencesBad)
+                        {
+                            Toast.makeText(getApplicationContext(), "Something is empty, please fill it up", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        ArrayList<Tuple<String, Integer>> _debtors = new ArrayList<>();
+
+                        for(int i = 0; i<spinnerRefferences.size(); i++)
+                        {
+                            _debtors.add(new Tuple<String, Integer>(spinnerRefferences.get(i).getSelectedItem().toString(),
+                                                                    Integer.parseInt(editTextRefferences.get(i).getText().toString())));
+                        }
+                        if(!noDebtors)
+                        {
+                            investItems.add(new InvestItem(iName.getText().toString(), iDescription.getText().toString(), iSum.getText().toString(),
+                                                           _debtors));
+                        }
+                        else
+                        mAdapter.notifyItemInserted(investItems.size());
+                        dialog.dismiss();
+                    }
+                });
+
+                mBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                });
+
+                mBuilder.setView(mView);
+
+                AlertDialog dialog = mBuilder.create();
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
             }
         });
 
@@ -264,8 +339,6 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
