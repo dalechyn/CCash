@@ -1,6 +1,5 @@
 package com.example.vladislav.ccash;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +17,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.example.vladislav.ccash.backend.MapFuncs;
+import com.example.vladislav.ccash.Frontend.Contact;
+import com.example.vladislav.ccash.backend.DBFuncs;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
 import com.example.vladislav.ccash.backend.SharedPrefKeys;
 import com.example.vladislav.ccash.backend.Tuple;
@@ -27,23 +27,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class ManageDebtorsActivity extends AppCompatActivity
 {
     Button btnShareName;
-    HashMap<String, Tuple<String, Integer>> debtorsMap;
+    ArrayList<Contact> contactList;
     ArrayList<String> debtors;
     SharedPreferences sharedPreferences;
+
+    private DBFuncs dbFuncs;
+
 
     ListView listViewDebtors;
 
     @Override
     public void onBackPressed()
     {
-        MapFuncs.saveMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, debtorsMap);
         super.onBackPressed();
     }
 
@@ -52,19 +51,24 @@ public class ManageDebtorsActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.managedebtors_activity);
+        initList();
         initView();
-        initHashmap();
         initListView();
     }
 
-    private void initHashmap()
+    private void initList()
     {
-        debtorsMap = new HashMap<>(MapFuncs.loadMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS));
+        dbFuncs = new DBFuncs(this);
+        contactList = dbFuncs.DBgetAllContacts();
         debtors = new ArrayList<>();
 
         //Init debtors
 
-        debtors = new ArrayList<>(debtorsMap.keySet());
+        for(Contact contact : contactList)
+        {
+            debtors.add(contact.getName());
+        }
+
     }
 
     private void initView()
@@ -114,7 +118,6 @@ public class ManageDebtorsActivity extends AppCompatActivity
 
     private void initListView()
     {
-        debtors = new ArrayList<>(debtorsMap.keySet());
         final ArrayAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, debtors);
         listViewDebtors.setAdapter(listAdapter);
 
@@ -132,7 +135,7 @@ public class ManageDebtorsActivity extends AppCompatActivity
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i)
                     {
-                        debtorsMap.remove(debtors.get(position));
+                        contactList.remove(position);
                         debtors.remove(position);
                         listAdapter.notifyDataSetChanged();
                         dialogInterface.dismiss();
@@ -161,9 +164,7 @@ public class ManageDebtorsActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i)
                             {
-                                Tuple savedUserInfo = debtorsMap.get(debtors.get(position));
-                                debtorsMap.remove(debtors.get(position));
-                                debtorsMap.put(renameName.getText().toString(), savedUserInfo);
+                                contactList.get(position).setName(renameName.getText().toString());
                                 debtors.set(position, renameName.getText().toString());
                                 dialogInterface.dismiss();
                             }

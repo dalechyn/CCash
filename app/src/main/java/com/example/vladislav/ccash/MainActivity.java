@@ -2,10 +2,12 @@ package com.example.vladislav.ccash;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
@@ -28,8 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vladislav.ccash.DebtCardView.InvestCardAdapter;
+import com.example.vladislav.ccash.Frontend.Contact;
+import com.example.vladislav.ccash.Frontend.Debtor;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.Frontend.InvestItemKeys;
+import com.example.vladislav.ccash.backend.DBFuncs;
 import com.example.vladislav.ccash.backend.MapFuncs;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
 import com.example.vladislav.ccash.backend.SharedPrefKeys;
@@ -54,7 +59,10 @@ public class MainActivity extends AppCompatActivity
     private InvestCardAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
+    private DBFuncs dbFuncs;
+
     private ArrayList<InvestItem> investItems = new ArrayList<>();
+
 
     private void initUI()
     {
@@ -63,6 +71,10 @@ public class MainActivity extends AppCompatActivity
         btncheckTotal = (Button) findViewById(R.id.buttonCheckTotal);
         btnmanageDebtors = (Button) findViewById(R.id.buttonManageDebtors);
         recyclerView = (RecyclerView) findViewById(R.id.recyclerViewMain);
+
+        dbFuncs = new DBFuncs(this);
+
+        investItems = dbFuncs.DBgetAllInvestItems();
 
         btncreateNew.setOnClickListener(new View.OnClickListener()
         {
@@ -75,6 +87,7 @@ public class MainActivity extends AppCompatActivity
                 final EditText iName = (EditText) mView.findViewById(R.id.editTextName);
                 final EditText iDescription = (EditText) mView.findViewById(R.id.editTextDescription);
                 final EditText iSum = (EditText) mView.findViewById(R.id.editTextSum);
+                final EditText iMyDebt = (EditText) mView.findViewById(R.id.editTextMyDebt);
 
                 final ImageView imageView = (ImageView) mView.findViewById(R.id.imageViewAddDebtor);
 
@@ -83,13 +96,14 @@ public class MainActivity extends AppCompatActivity
                 final ArrayList<EditText> editTextRefferences = new ArrayList<EditText>();
                 final ArrayList<Spinner> spinnerRefferences = new ArrayList<Spinner>();
 
+                final ArrayList<Contact> contacts = dbFuncs.DBgetAllContacts();
 
                 imageView.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View view)
                     {
-                        if(MapFuncs.loadMap(getApplicationContext(), SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS).isEmpty())
+                        if(contacts.isEmpty())
                         {
                             Toast.makeText(getApplicationContext(), "You've got no debtors to add", Toast.LENGTH_LONG).show();
                             return;
@@ -106,9 +120,8 @@ public class MainActivity extends AppCompatActivity
 
                         final ArrayList<String> addable = new ArrayList<>();
 
-                        addable.addAll(MapFuncs.loadMap(getApplicationContext(),
-                                                        SharedPrefKeys.MY_PREF_KEY,
-                                                        SharedPrefKeys.THIS_CONTACTS).keySet());
+                        for(Contact contact : contacts)
+                            addable.add(contact.getName());
 
                         newSpinner.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item,
                                                                        addable));
@@ -169,7 +182,6 @@ public class MainActivity extends AppCompatActivity
                     {
 
                         boolean editTextRefferencesBad = false;
-                        boolean noDebtors = false;
 
                         if(!editTextRefferences.isEmpty())
                         {
@@ -179,8 +191,6 @@ public class MainActivity extends AppCompatActivity
                                     editTextRefferencesBad = true;
                             }
                         }
-                        else noDebtors = true;
-
 
                         if(iName.getText().toString().isEmpty() || iDescription.getText().toString().isEmpty()
                                 || iSum.getText().toString().isEmpty() || editTextRefferencesBad)
@@ -189,19 +199,25 @@ public class MainActivity extends AppCompatActivity
                             return;
                         }
 
-                        ArrayList<Tuple<String, Integer>> _debtors = new ArrayList<>();
+                        ArrayList<Debtor> _debtors = new ArrayList<>();
 
                         for(int i = 0; i<spinnerRefferences.size(); i++)
                         {
-                            _debtors.add(new Tuple<String, Integer>(spinnerRefferences.get(i).getSelectedItem().toString(),
-                                                                    Integer.parseInt(editTextRefferences.get(i).getText().toString())));
+
+                            String selectedItem = spinnerRefferences.get(i).getSelectedItem().toString();
+
+                            _debtors.add(new Debtor(selectedItem,
+                                                    Contact.getUIDbyName(contacts, selectedItem),
+                                                    Float.parseFloat(editTextRefferences.get(i).getText().toString())));
                         }
-                        if(!noDebtors)
-                        {
-                            investItems.add(new InvestItem(iName.getText().toString(), iDescription.getText().toString(), iSum.getText().toString(),
-                                                           _debtors));
-                        }
-                        else
+
+                        InvestItem newItem = new InvestItem(iName.getText().toString(), iDescription.getText().toString(), Integer.parseInt(iSum.getText().toString()),
+                                                            Integer.parseInt(iMyDebt.getText().toString()), _debtors);
+
+                        investItems.add(newItem);
+
+                        dbFuncs.DBinsertInvestItem(newItem);
+
                         mAdapter.notifyItemInserted(investItems.size());
                         dialog.dismiss();
                     }
@@ -243,16 +259,31 @@ public class MainActivity extends AppCompatActivity
                 startActivity(newIntent);
             }
         });
-    }
 
-    private void InTest()
-    {
-        ArrayList<Tuple<String, Integer>> Debtors = new ArrayList<Tuple<String, Integer>>();
-        Debtors.add(new Tuple<String, Integer>("Max", 200));
-        Debtors.add(new Tuple<String, Integer>("Misha", 400));
-        investItems.add(new InvestItem("Router", "We bought a real router on this money", "4000$", Debtors)
-        );
-        mAdapter.notifyItemInserted(0);
+        btncheckTotal.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(getApplicationContext());
+                mBuilder.setTitle("Total checkout");
+                StringBuilder stringBuilder = new StringBuilder();
+
+                double totalCheckout = 0.1;
+
+                for(InvestItem investItem : investItems)
+                {
+                    totalCheckout += investItem.getInvestMyDebts();
+                    for(Debtor debtor : investItem.getDebts())
+                    {
+                        totalCheckout += debtor.getDebtorDebt();
+                    }
+                }
+                mBuilder.setMessage("Your total checkout is " + totalCheckout);
+            }
+        });
+
+
     }
 
     public void buildRecyclerView() {
@@ -307,18 +338,19 @@ public class MainActivity extends AppCompatActivity
 
                     JSONObject investJSON = jsonObject.getJSONObject(QRTranslateConfig.QRInvestment);
 
-                    ArrayList<Tuple<String, Integer>> debtors = new ArrayList<>();
-                    JSONObject jsonDebtors = investJSON.getJSONObject(InvestItemKeys.InvestDebtorsKey);
+                    ArrayList<Debtor> debtors = new ArrayList<>();
+                    JSONArray jsonDebtors = investJSON.getJSONArray(InvestItemKeys.InvestDebtorsKey);
                     if (jsonDebtors != null) {
-                        Iterator<String> keys = jsonDebtors.keys();
-                        while (keys.hasNext()){
-                            String key = keys.next();
-                            debtors.add(new Tuple<>(key, (Integer) jsonDebtors.get(key)));
+                        for(int i = 0; i< jsonDebtors.length()/3; i++)
+                        {
+                            debtors.add(new Debtor(
+                               jsonDebtors.getString(i), jsonDebtors.getString(i+1), (Float)jsonDebtors.get(i+2)
+                            ));
                         }
                     }
 
                     InvestItem newInvestItem = new InvestItem(investJSON.getString(InvestItemKeys.InvestNameKey), investJSON.getString(InvestItemKeys.InvestDescriptionKey),
-                                                              investJSON.getString(InvestItemKeys.InvestSumKey), debtors);
+                                                              investJSON.getInt(InvestItemKeys.InvestSumKey), investJSON.getInt(InvestItemKeys.InvestMyDebtKey), debtors);
 
                     investItems.add(newInvestItem);
                     mAdapter.notifyItemInserted(investItems.size());
@@ -326,10 +358,6 @@ public class MainActivity extends AppCompatActivity
                 case QRTranslateConfig.QRAddContact:
                     JSONObject contactJSON = jsonObject.getJSONObject(QRTranslateConfig.QRContact);
 
-                    Map<String, Tuple<String, Integer>> map = MapFuncs.loadMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS);
-                    map.put(contactJSON.getString(QRTranslateConfig.QRUserName),
-                            new Tuple<>(contactJSON.getString(QRTranslateConfig.QRuid), 0));
-                    MapFuncs.saveMap(this, SharedPrefKeys.MY_PREF_KEY, SharedPrefKeys.THIS_CONTACTS, map);
                     break;
             }
 
@@ -371,6 +399,5 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         initUI();
         buildRecyclerView();
-        InTest();
     }
 }

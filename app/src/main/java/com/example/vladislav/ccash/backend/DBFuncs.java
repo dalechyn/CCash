@@ -117,10 +117,10 @@ public class DBFuncs extends SQLiteOpenHelper {
         do
         {
             InvestItem newInvestItem = new InvestItem();
-            newInvestItem.setInvestMyDebts(c.getFloat(c.getColumnIndex(KEY_MYDEBT)));
+            newInvestItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
             newInvestItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
             newInvestItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
-            newInvestItem.setInvestSum(c.getFloat(c.getColumnIndex(KEY_SUMMARY)));
+            newInvestItem.setInvestSum(c.getDouble(c.getColumnIndex(KEY_SUMMARY)));
             newInvestItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
             newInvestItem.setDebts(DBgetDebtorsListByInvestId(newInvestItem.getDb_id()));
 
@@ -132,7 +132,7 @@ public class DBFuncs extends SQLiteOpenHelper {
         return investItems;
     }
 
-    private int getFreeID()
+    public int getFreeID()
     {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -179,7 +179,7 @@ public class DBFuncs extends SQLiteOpenHelper {
         investItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
         investItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
         investItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
-        investItem.setInvestMyDebts(c.getInt(c.getColumnIndex(KEY_MYDEBT)));
+        investItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
         investItem.setDebts(DBgetDebtorsListByInvestId(invest_id));
 
         c.close();
@@ -201,7 +201,7 @@ public class DBFuncs extends SQLiteOpenHelper {
         ArrayList<Debtor> newDebtorList = new ArrayList<>();
         newDebtorList.add(new Debtor(c.getString(c.getColumnIndex(KEY_DEBTOR_NAME)),
                                      c.getString(c.getColumnIndex(KEY_DEBTOR_UID)),
-                                     c.getFloat(c.getColumnIndex(KEY_DEBTOR_DEBT))));
+                                     c.getDouble(c.getColumnIndex(KEY_DEBTOR_DEBT))));
 
         c.close();
 
@@ -223,7 +223,7 @@ public class DBFuncs extends SQLiteOpenHelper {
         }
     }
 
-    private void DBinsertContacts(Contact contact)
+    public void DBinsertContacts(Contact contact)
     {
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -234,7 +234,7 @@ public class DBFuncs extends SQLiteOpenHelper {
         db.insert(TABLE_CONTACTS, null, values);
     }
 
-    private ArrayList<Contact> DBgetAllContacts()
+    public ArrayList<Contact> DBgetAllContacts()
     {
         SQLiteDatabase db = this.getReadableDatabase();
 

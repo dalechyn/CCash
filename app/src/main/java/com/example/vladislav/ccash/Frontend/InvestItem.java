@@ -16,8 +16,8 @@ public class InvestItem
     private String InvestName;
 
     private String InvestDescription;
-    private float InvestMyDebts;
-    private float InvestSum;
+    private double InvestMyDebts;
+    private double InvestSum;
     private ArrayList<Debtor> Debts;
 
     public int getDb_id()
@@ -30,12 +30,12 @@ public class InvestItem
         this.db_id = db_id;
     }
 
-    public float getInvestMyDebts()
+    public double getInvestMyDebts()
     {
         return InvestMyDebts;
     }
 
-    public void setInvestMyDebts(float investMyDebts)
+    public void setInvestMyDebts(double investMyDebts)
     {
         InvestMyDebts = investMyDebts;
     }
@@ -60,12 +60,12 @@ public class InvestItem
         InvestDescription = investDescription;
     }
 
-    public float getInvestSum()
+    public double getInvestSum()
     {
         return InvestSum;
     }
 
-    public void setInvestSum(float investSum)
+    public void setInvestSum(double investSum)
     {
         InvestSum = investSum;
     }
@@ -84,7 +84,7 @@ public class InvestItem
     {
     }
 
-    public InvestItem(String investName, String investDescription, float investMyDebts, float investSum, ArrayList<Debtor> debts){
+    public InvestItem(String investName, String investDescription, double investMyDebts, double investSum, ArrayList<Debtor> debts){
         setDebts(debts);
         setInvestDescription(investDescription);
         setInvestName(investName);

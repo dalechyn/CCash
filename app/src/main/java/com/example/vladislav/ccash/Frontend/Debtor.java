@@ -1,46 +1,49 @@
 package com.example.vladislav.ccash.Frontend;
 
-public class Debtor
+
+public class Debtor extends Contact
 {
-    private String DebtorName;
+    private double DebtorDebt;
 
-    private String DebtorUID;
-
-    private Float DebtorDebt;
-
-    public Debtor(String debtorName, String debtorUID, Float debtorDebt)
+    public Debtor(String debtorName, String debtorUID, double debtorDebt)
     {
-        DebtorName = debtorName;
-        DebtorUID = debtorUID;
+        super(debtorName, debtorUID);
+        super.setName(debtorName);
+        super.setName(debtorUID);
         DebtorDebt = debtorDebt;
     }
 
     public String getDebtorName()
     {
-        return DebtorName;
+        return super.getName();
+    }
+
+    public Contact getContact()
+    {
+        return super.returnContact();
     }
 
     public void setDebtorName(String debtorName)
     {
-        DebtorName = debtorName;
+        super.setName(debtorName);
     }
 
     public String getDebtorUID()
     {
-        return DebtorUID;
+        return super.getUID();
     }
 
     public void setDebtorUID(String debtorUID)
     {
-        DebtorUID = debtorUID;
+        super.setUID(debtorUID);
     }
 
-    public Float getDebtorDebt()
+    public double getDebtorDebt()
     {
         return DebtorDebt;
     }
 
-    public void setDebtorDebt(Float debtorDebt)
+    public void setDebtorDebt(double debtorDebt)
     {
         DebtorDebt = debtorDebt;
     }

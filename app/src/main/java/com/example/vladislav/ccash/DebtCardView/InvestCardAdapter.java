@@ -109,11 +109,11 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
         holder.InvestMyDebt.setText(String.valueOf(currentItem.getInvestMyDebts()));
 
         StringBuilder finalDebtors = new StringBuilder();
-        finalDebtors.append(currentItem.getDebts().get(0).x);
+        finalDebtors.append(currentItem.getDebts().get(0).getDebtorName());
         for(int i = 1; i < currentItem.getDebts().size(); i++)
         {
             finalDebtors.append(", ");
-            finalDebtors.append(currentItem.getDebts().get(i).x);
+            finalDebtors.append(currentItem.getDebts().get(i).getDebtorName());
         }
 
         holder.Debtors.setText(finalDebtors.toString());
