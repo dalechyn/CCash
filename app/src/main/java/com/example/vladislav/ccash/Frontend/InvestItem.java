@@ -7,13 +7,38 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class InvestItem
 {
-    String InvestName;
-    String InvestDescription;
-    String InvestSum;
-    ArrayList<Tuple<String, Integer>> Debts;
+    private int db_id;
+
+    private String InvestName;
+
+    private String InvestDescription;
+    private float InvestMyDebts;
+    private float InvestSum;
+    private ArrayList<Debtor> Debts;
+
+    public int getDb_id()
+    {
+        return db_id;
+    }
+
+    public void setDb_id(int db_id)
+    {
+        this.db_id = db_id;
+    }
+
+    public float getInvestMyDebts()
+    {
+        return InvestMyDebts;
+    }
+
+    public void setInvestMyDebts(float investMyDebts)
+    {
+        InvestMyDebts = investMyDebts;
+    }
 
     public String getInvestName()
     {
@@ -35,22 +60,22 @@ public class InvestItem
         InvestDescription = investDescription;
     }
 
-    public String getInvestSum()
+    public float getInvestSum()
     {
         return InvestSum;
     }
 
-    public void setInvestSum(String investSum)
+    public void setInvestSum(float investSum)
     {
         InvestSum = investSum;
     }
 
-    public ArrayList<Tuple<String, Integer>> getDebts()
+    public ArrayList<Debtor> getDebts()
     {
         return Debts;
     }
 
-    public void setDebts(ArrayList<Tuple<String, Integer>> debts)
+    public void setDebts(ArrayList<Debtor> debts)
     {
         Debts = debts;
     }
@@ -59,10 +84,11 @@ public class InvestItem
     {
     }
 
-    public InvestItem(String investName, String investDescription, String investSum, ArrayList<Tuple<String, Integer>> debts){
+    public InvestItem(String investName, String investDescription, float investMyDebts, float investSum, ArrayList<Debtor> debts){
         setDebts(debts);
         setInvestDescription(investDescription);
         setInvestName(investName);
+        setInvestMyDebts(investMyDebts);
         setInvestSum(investSum);
     }
 
@@ -75,14 +101,16 @@ public class InvestItem
             object.put(InvestItemKeys.InvestDescriptionKey, InvestDescription);
             object.put(InvestItemKeys.InvestSumKey, InvestSum);
 
-            JSONObject arr = new JSONObject();
-
-            for(Tuple<String, Integer> t : Debts)
+            JSONArray arr = new JSONArray();
+            for(Debtor debtor : Debts)
             {
-                arr.put(t.x ,t.y);
+                arr.put(debtor.getDebtorUID());
+                arr.put(debtor.getDebtorName());
+                arr.put(debtor.getDebtorDebt());
             }
 
             object.put(InvestItemKeys.InvestDebtorsKey, arr);
+
             return object;
         }
         catch (JSONException e)

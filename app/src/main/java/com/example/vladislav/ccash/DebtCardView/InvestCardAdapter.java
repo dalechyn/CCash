@@ -11,6 +11,8 @@ import android.widget.TextView;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.R;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.InvestViewHolder>
@@ -26,6 +28,7 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
     public static class InvestViewHolder extends RecyclerView.ViewHolder {
         TextView InvestName;
         TextView InvestSum;
+        TextView InvestMyDebt;
         TextView InvestDesc;
         TextView Debtors;
 
@@ -38,6 +41,7 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
             InvestName = (TextView) itemView.findViewById(R.id.InvestNameVIew);
             InvestDesc = (TextView) itemView.findViewById(R.id.InvestDescView);
             InvestSum  = (TextView) itemView.findViewById(R.id.TotalSumView);
+            InvestMyDebt = (TextView) itemView.findViewById(R.id.MyDebtView);
             Debtors    = (TextView) itemView.findViewById(R.id.InvestDebtorsView);
 
             CheckMore  = (Button) itemView.findViewById(R.id.btnCheckMore);
@@ -101,7 +105,8 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
 
         holder.InvestDesc.setText(currentItem.getInvestDescription());
         holder.InvestName.setText(currentItem.getInvestName());
-        holder.InvestSum.setText(currentItem.getInvestSum());
+        holder.InvestSum.setText(String.valueOf(currentItem.getInvestSum()));
+        holder.InvestMyDebt.setText(String.valueOf(currentItem.getInvestMyDebts()));
 
         StringBuilder finalDebtors = new StringBuilder();
         finalDebtors.append(currentItem.getDebts().get(0).x);

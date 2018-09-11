@@ -6,5 +6,4 @@ public interface SharedPrefKeys
 
     String THIS_USERNAME = "thisusername";
     String THIS_UID = "thisuid";
-    String THIS_CONTACTS = "thisconcacts";
 }
