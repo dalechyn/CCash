@@ -63,12 +63,13 @@ public class ManageDebtorsActivity extends AppCompatActivity
         debtors = new ArrayList<>();
 
         //Init debtors
-
-        for(Contact contact : contactList)
+        if(contactList!=null)
         {
-            debtors.add(contact.getName());
+            for (Contact contact : contactList)
+            {
+                debtors.add(contact.getName());
+            }
         }
-
     }
 
     private void initView()

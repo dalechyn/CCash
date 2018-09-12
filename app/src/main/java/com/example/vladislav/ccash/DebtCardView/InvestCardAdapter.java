@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.vladislav.ccash.Frontend.Debtor;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.R;
 
@@ -76,8 +77,6 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
                     }
                 }
             });
-
-
         }
 
     }
@@ -108,15 +107,29 @@ public class InvestCardAdapter extends RecyclerView.Adapter<InvestCardAdapter.In
         holder.InvestSum.setText(String.valueOf(currentItem.getInvestSum()));
         holder.InvestMyDebt.setText(String.valueOf(currentItem.getInvestMyDebts()));
 
-        StringBuilder finalDebtors = new StringBuilder();
-        finalDebtors.append(currentItem.getDebts().get(0).getDebtorName());
-        for(int i = 1; i < currentItem.getDebts().size(); i++)
+        ArrayList<Debtor> debtors = currentItem.getDebts();
+
+        String resultDebtors;
+
+        if(debtors != null && !debtors.isEmpty())
         {
-            finalDebtors.append(", ");
-            finalDebtors.append(currentItem.getDebts().get(i).getDebtorName());
+            StringBuilder finalDebtors = new StringBuilder();
+            finalDebtors.append(currentItem.getDebts().get(0).getDebtorName());
+            for(int i = 1; i < currentItem.getDebts().size(); i++)
+            {
+                finalDebtors.append(", ");
+                finalDebtors.append(currentItem.getDebts().get(i).getDebtorName());
+            }
+
+            resultDebtors = finalDebtors.toString();
+        }
+        else
+        {
+            resultDebtors = "No debtors found";
         }
 
-        holder.Debtors.setText(finalDebtors.toString());
+
+        holder.Debtors.setText(resultDebtors);
     }
 
     @Override

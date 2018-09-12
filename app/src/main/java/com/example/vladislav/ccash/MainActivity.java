@@ -2,24 +2,20 @@ package com.example.vladislav.ccash;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,25 +31,19 @@ import com.example.vladislav.ccash.Frontend.Debtor;
 import com.example.vladislav.ccash.Frontend.InvestItem;
 import com.example.vladislav.ccash.Frontend.InvestItemKeys;
 import com.example.vladislav.ccash.backend.DBFuncs;
-import com.example.vladislav.ccash.backend.MapFuncs;
 import com.example.vladislav.ccash.backend.QRTranslateConfig;
-import com.example.vladislav.ccash.backend.SharedPrefKeys;
-import com.example.vladislav.ccash.backend.Tuple;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
 {
     private final static int REQUESTCODE_SCANQR = 1;
 
-    Button btnmanageDebtors, btncanQR, btncreateNew, btncheckTotal;
+    Button btnmanageDebtors, btnscanQR, btncreateNew, btncheckTotal;
 
     private RecyclerView recyclerView;
     private InvestCardAdapter mAdapter;
@@ -66,7 +56,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initUI()
     {
-        btncanQR = (Button) findViewById(R.id.buttonScanQR);
+        btnscanQR = (Button) findViewById(R.id.buttonScanQR);
         btncreateNew = (Button) findViewById(R.id.buttonNewItem);
         btncheckTotal = (Button) findViewById(R.id.buttonCheckTotal);
         btnmanageDebtors = (Button) findViewById(R.id.buttonManageDebtors);
@@ -240,7 +230,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        btncanQR.setOnClickListener(new View.OnClickListener()
+        btnscanQR.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
@@ -339,25 +329,31 @@ public class MainActivity extends AppCompatActivity
                     JSONObject investJSON = jsonObject.getJSONObject(QRTranslateConfig.QRInvestment);
 
                     ArrayList<Debtor> debtors = new ArrayList<>();
-                    JSONArray jsonDebtors = investJSON.getJSONArray(InvestItemKeys.InvestDebtorsKey);
-                    if (jsonDebtors != null) {
-                        for(int i = 0; i< jsonDebtors.length()/3; i++)
+                    if(investJSON.has(InvestItemKeys.InvestDebtorsKey))
+                    {
+                        JSONArray jsonDebtors = investJSON.getJSONArray(InvestItemKeys.InvestDebtorsKey);
+                        if (jsonDebtors != null)
                         {
-                            debtors.add(new Debtor(
-                               jsonDebtors.getString(i), jsonDebtors.getString(i+1), (Float)jsonDebtors.get(i+2)
-                            ));
+                            for (int i = 0; i < jsonDebtors.length() / 3; i++)
+                            {
+                                debtors.add(new Debtor(
+                                        jsonDebtors.getString(i), jsonDebtors.getString(i + 1), (Float) jsonDebtors.get(i + 2)
+                                ));
+                            }
                         }
                     }
-
                     InvestItem newInvestItem = new InvestItem(investJSON.getString(InvestItemKeys.InvestNameKey), investJSON.getString(InvestItemKeys.InvestDescriptionKey),
-                                                              investJSON.getInt(InvestItemKeys.InvestSumKey), investJSON.getInt(InvestItemKeys.InvestMyDebtKey), debtors);
+                                                              investJSON.getDouble(InvestItemKeys.InvestSumKey), investJSON.getDouble(InvestItemKeys.InvestMyDebtKey), debtors);
 
+                    Log.d("newItem", newInvestItem.toJSON().toString());
+                    dbFuncs.DBinsertInvestItem(newInvestItem);
                     investItems.add(newInvestItem);
-                    mAdapter.notifyItemInserted(investItems.size());
+                    mAdapter.notifyItemInserted(0);
                     break;
                 case QRTranslateConfig.QRAddContact:
                     JSONObject contactJSON = jsonObject.getJSONObject(QRTranslateConfig.QRContact);
-
+                    dbFuncs.DBinsertContacts(new Contact(contactJSON.getString(QRTranslateConfig.QRUserName),
+                                                         contactJSON.getString(QRTranslateConfig.QRuid)));
                     break;
             }
 

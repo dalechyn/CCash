@@ -109,24 +109,24 @@ public class DBFuncs extends SQLiteOpenHelper {
 
         Cursor c = sqLiteDatabase.rawQuery(sqlQuery, null);
 
-        if(c != null)
-            c.moveToFirst();
-
         ArrayList<InvestItem> investItems = new ArrayList<>();
 
-        do
+        if(c != null && c.moveToFirst())
         {
-            InvestItem newInvestItem = new InvestItem();
-            newInvestItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
-            newInvestItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
-            newInvestItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
-            newInvestItem.setInvestSum(c.getDouble(c.getColumnIndex(KEY_SUMMARY)));
-            newInvestItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
-            newInvestItem.setDebts(DBgetDebtorsListByInvestId(newInvestItem.getDb_id()));
+            do
+            {
+                InvestItem newInvestItem = new InvestItem();
+                newInvestItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
+                newInvestItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
+                newInvestItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
+                newInvestItem.setInvestSum(c.getDouble(c.getColumnIndex(KEY_SUMMARY)));
+                newInvestItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
+                newInvestItem.setDebts(DBgetDebtorsListByInvestId(newInvestItem.getDb_id()));
 
-            investItems.add(newInvestItem);
-        } while (c.moveToNext());
-
+                investItems.add(newInvestItem);
+            }
+            while (c.moveToNext());
+        }
         c.close();
 
         return investItems;
@@ -136,26 +136,26 @@ public class DBFuncs extends SQLiteOpenHelper {
     {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sqlQuery =  "SELECT  * FROM " + TABLE_INVESTINFO + " WHERE " + KEY_ID;
+        String sqlQuery = "SELECT  * FROM " + TABLE_INVESTINFO + " WHERE " + KEY_ID;
 
         Cursor c = db.rawQuery(sqlQuery, null);
 
-        if(c != null)
-            c.moveToFirst();
-        else return 0;
 
         int maxid = -1;
-
-        do
+        if (c != null && c.moveToFirst())
         {
-            int cur_id =c.getInt(c.getColumnIndex(KEY_DEBTOR_ID));
-            if(maxid < cur_id)
+            do
             {
-                maxid = cur_id;
+                int cur_id = c.getInt(c.getColumnIndex(KEY_DEBTOR_ID));
+                if (maxid < cur_id)
+                {
+                    maxid = cur_id;
+                }
+
             }
-
-        } while (c.moveToNext());
-
+            while (c.moveToNext());
+        }
+        else return 0;
         c.close();
 
         return maxid + 1;
@@ -171,20 +171,22 @@ public class DBFuncs extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c != null)
-            c.moveToFirst();
+        if(c != null && c.moveToFirst())
+        {
+            InvestItem investItem =  new InvestItem();
 
-        InvestItem investItem =  new InvestItem();
+            investItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
+            investItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
+            investItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
+            investItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
+            investItem.setDebts(DBgetDebtorsListByInvestId(invest_id));
 
-        investItem.setDb_id(c.getInt(c.getColumnIndex(KEY_ID)));
-        investItem.setInvestName(c.getString(c.getColumnIndex(KEY_NAME)));
-        investItem.setInvestDescription(c.getString(c.getColumnIndex(KEY_DESCRIPTION)));
-        investItem.setInvestMyDebts(c.getDouble(c.getColumnIndex(KEY_MYDEBT)));
-        investItem.setDebts(DBgetDebtorsListByInvestId(invest_id));
+            c.close();
 
-        c.close();
-
-        return investItem;
+            return investItem;
+        }
+            c.close();
+            return null;
     }
 
     private ArrayList<Debtor> DBgetDebtorsListByInvestId(long invest_id)
@@ -195,17 +197,18 @@ public class DBFuncs extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if (c != null)
-            c.moveToFirst();
-
-        ArrayList<Debtor> newDebtorList = new ArrayList<>();
-        newDebtorList.add(new Debtor(c.getString(c.getColumnIndex(KEY_DEBTOR_NAME)),
-                                     c.getString(c.getColumnIndex(KEY_DEBTOR_UID)),
-                                     c.getDouble(c.getColumnIndex(KEY_DEBTOR_DEBT))));
-
+        if (c != null && c.moveToFirst())
+        {
+            ArrayList<Debtor> newDebtorList = new ArrayList<>();
+            newDebtorList.add(new Debtor(c.getString(c.getColumnIndex(KEY_DEBTOR_NAME)),
+                                         c.getString(c.getColumnIndex(KEY_DEBTOR_UID)),
+                                         c.getDouble(c.getColumnIndex(KEY_DEBTOR_DEBT))));
+            c.close();
+            return newDebtorList;
+        }
         c.close();
 
-        return newDebtorList;
+        return null;
     }
 
     private void DBinsertDebtorsList(ArrayList<Debtor> debtors, long invest_id)
@@ -242,19 +245,23 @@ public class DBFuncs extends SQLiteOpenHelper {
 
         Cursor c = db.rawQuery(selectQuery, null);
 
-        if(c != null)
-            c.moveToFirst();
-
-        ArrayList<Contact> contacts = new ArrayList<>();
-
-        do
+        if(c != null && c.moveToFirst())
         {
-            contacts.add(new Contact(
-                    c.getString(c.getColumnIndex(KEY_CONTACT_NAME)),
-                    c.getString(c.getColumnIndex(KEY_CONTACT_UID))
-            ));
-        } while (c.moveToNext());
 
-        return contacts;
+            ArrayList<Contact> contacts = new ArrayList<>();
+
+            do
+            {
+                contacts.add(new Contact(
+                        c.getString(c.getColumnIndex(KEY_CONTACT_NAME)),
+                        c.getString(c.getColumnIndex(KEY_CONTACT_UID))
+                ));
+            }
+            while (c.moveToNext());
+            c.close();
+            return contacts;
+        }
+        c.close();
+        return null;
     }
 }

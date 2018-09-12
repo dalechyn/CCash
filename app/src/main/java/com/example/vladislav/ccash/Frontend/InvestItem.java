@@ -100,16 +100,20 @@ public class InvestItem
             object.put(InvestItemKeys.InvestNameKey, InvestName);
             object.put(InvestItemKeys.InvestDescriptionKey, InvestDescription);
             object.put(InvestItemKeys.InvestSumKey, InvestSum);
+            object.put(InvestItemKeys.InvestMyDebtKey, InvestMyDebts);
 
-            JSONArray arr = new JSONArray();
-            for(Debtor debtor : Debts)
+            if(Debts != null)
             {
-                arr.put(debtor.getDebtorUID());
-                arr.put(debtor.getDebtorName());
-                arr.put(debtor.getDebtorDebt());
+                JSONArray arr = new JSONArray();
+                for (Debtor debtor : Debts)
+                {
+                    arr.put(debtor.getDebtorUID());
+                    arr.put(debtor.getDebtorName());
+                    arr.put(debtor.getDebtorDebt());
+                }
+                object.put(InvestItemKeys.InvestDebtorsKey, arr);
             }
-
-            object.put(InvestItemKeys.InvestDebtorsKey, arr);
+            //else object.put(InvestItemKeys.InvestDebtorsKey, null);
 
             return object;
         }
